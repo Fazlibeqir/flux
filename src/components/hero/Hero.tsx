@@ -52,15 +52,6 @@ export default function Hero() {
                             filter: `blur(${blur}px)`,
                         }}
                     >
-                        {/* Logo (optional) */}
-                        <Image
-                            src="/Flux-logo-backgoundrmv.png"
-                            alt="Driven by Flux"
-                            width={180}
-                            height={72}
-                            priority
-                            className="mb-6 h-auto w-[140px] sm:w-[170px] opacity-95"
-                        />
 
                         <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-300">
                             Driven by Flux

@@ -1,9 +1,11 @@
 import Hero from "@/components/hero/Hero";
+import Image from "next/image";
 
 const services = [
   {
     label: "Business websites",
     targetId: "service-websites",
+    icon: "/icons/service-websites.png",
     description:
       "Fast, modern websites for companies that need credibility, conversions, and easy maintenance.",
     bullets: [
@@ -16,6 +18,7 @@ const services = [
   {
     label: "Restaurant & café digital menus",
     targetId: "service-digital-menus",
+    icon: "/icons/service-menus.png",
     description:
       "QR-powered menus and product showcases designed for speed, mobile usability, and easy updates.",
     bullets: [
@@ -28,6 +31,7 @@ const services = [
   {
     label: "Admin dashboards",
     targetId: "service-admin-dashboards",
+    icon: "/icons/service-dashboard.png",
     description:
       "Custom dashboards for managing users, content, orders, reports, and internal workflows.",
     bullets: [
@@ -40,6 +44,7 @@ const services = [
   {
     label: "Android / iOS apps",
     targetId: "service-mobile-apps",
+    icon: "/icons/service-mobile.png",
     description:
       "Cross-platform or native-feel mobile apps for customer experiences and internal business tools.",
     bullets: [
@@ -52,6 +57,7 @@ const services = [
   {
     label: "Desktop tools",
     targetId: "service-desktop-tools",
+    icon: "/icons/service-desktop.png",
     description:
       "Desktop software for internal operations, reporting, automation, and specialized workflows.",
     bullets: [
@@ -64,6 +70,7 @@ const services = [
   {
     label: "Custom integrations",
     targetId: "service-custom-integrations",
+    icon: "/icons/service-integrations.png",
     description:
       "Connect systems, automate repetitive tasks, and sync data between the tools your business uses.",
     bullets: [
@@ -80,11 +87,13 @@ function ServiceDetail({
   title,
   description,
   bullets,
+  icon
 }: {
   id: string;
   title: string;
   description: string;
   bullets: string[];
+  icon: string;
 }) {
   return (
     <section
@@ -95,7 +104,12 @@ function ServiceDetail({
         Service
       </div>
 
-      <h3 className="text-2xl font-semibold text-white md:text-3xl">{title}</h3>
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 overflow-hidden rounded-full border border-white/10 bg-white/[0.03]">
+          <Image src={icon} alt="" width={40} height={40} className="h-10 w-10 object-cover" />
+        </div>
+        <h3 className="text-2xl font-semibold text-white md:text-3xl">{title}</h3>
+      </div>
 
       <p className="mt-3 max-w-3xl text-white/70">{description}</p>
 
@@ -119,7 +133,7 @@ export default function HomePage() {
       <Hero />
 
       {/* Services overview */}
-      <section className="relative bg-gradient-to-b from-black to-slate-950">
+      <section id="services" className="scroll-mt-24 relative bg-gradient-to-b from-black to-slate-950">
         <div className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
           <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-300">
             What we build
@@ -136,9 +150,24 @@ export default function HomePage() {
               <a
                 key={item.targetId}
                 href={`#${item.targetId}`}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition duration-300 hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-white/[0.05] hover:shadow-[0_0_0_1px_rgba(34,211,238,0.08),0_8px_30px_rgba(14,165,233,0.08)]"
+                className="group cursor-pointer relative overflow-visible rounded-2xl border border-white/10 bg-white/[0.03] p-5 pt-9 text-left transition duration-300 hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-white/[0.05] hover:shadow-[0_0_0_1px_rgba(34,211,238,0.08),0_8px_30px_rgba(14,165,233,0.08)]"
               >
-                {/* Flux gradient hover atmosphere */}
+                {/* TOP-CENTER badge icon (half outside) */}
+                <span className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
+                  <span className="relative grid h-12 w-12 place-items-center overflow-hidden rounded-full  backdrop-blur">
+                    <Image
+                      src={item.icon}
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 object-cover"
+                    />
+                    {/* subtle glow on hover */}
+                    <span className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100 bg-[radial-gradient(circle_at_30%_30%,rgba(34,211,238,0.22),transparent_60%)]" />
+                  </span>
+                </span>
+
+                {/* Flux hover atmosphere */}
                 <span className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100">
                   <span className="absolute inset-0 bg-[radial-gradient(70%_120%_at_0%_50%,rgba(34,211,238,0.12),transparent_60%)]" />
                   <span className="absolute inset-0 bg-[radial-gradient(70%_120%_at_100%_50%,rgba(59,130,246,0.10),transparent_60%)]" />
@@ -147,13 +176,12 @@ export default function HomePage() {
                 {/* Top accent line */}
                 <span className="pointer-events-none absolute left-4 right-4 top-0 h-px bg-gradient-to-r from-cyan-300/0 via-cyan-300/40 to-blue-400/0 opacity-0 transition duration-300 group-hover:opacity-100" />
 
-                <span className="relative flex items-center justify-between gap-4">
+                {/* Content */}
+                <span className="relative flex justify-center text-center">
                   <span className="text-white/90 transition group-hover:text-white">
                     {item.label}
                   </span>
-                  <span className="text-cyan-300/0 transition duration-300 group-hover:text-cyan-300">
-                    →
-                  </span>
+
                 </span>
               </a>
             ))}
@@ -171,6 +199,7 @@ export default function HomePage() {
               title={service.label}
               description={service.description}
               bullets={service.bullets}
+              icon={service.icon}
             />
           ))}
         </div>
@@ -389,56 +418,90 @@ export default function HomePage() {
               Fill this out and we’ll get back to you.
             </p>
 
-            <form className="mt-6 space-y-4">
+            <form
+              action="https://formspree.io/f/mjgelnbg"
+              method="POST"
+              className="mt-6 space-y-4">
+              {/* Honeypot (spam trap) */}
+              <input type="text" name="_gotcha" className="hidden" />
+
               <div>
-                <label className="mb-2 block text-sm text-white/80">Name</label>
+                <label htmlFor="name" className="mb-2 block text-sm text-white/80">
+                  Name
+                </label>
                 <input
+                  id="name"
+                  name="name"
                   type="text"
+                  required
                   placeholder="Your name"
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-cyan-300/40"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-white/80">Email</label>
+                <label htmlFor="email" className="mb-2 block text-sm text-white/80">
+                  Email
+                </label>
                 <input
+                  id="email"
+                  name="email"
                   type="email"
+                  required
                   placeholder="you@company.com"
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-cyan-300/40"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-white/80">What do you need?</label>
-                <select className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-cyan-300/40">
-                  <option>Business website</option>
-                  <option>QR digital menu</option>
-                  <option>Admin dashboard</option>
-                  <option>Android / iOS app</option>
-                  <option>Desktop tool</option>
-                  <option>Custom integration</option>
-                  <option>Other</option>
+                <label htmlFor="serviceType" className="mb-2 block text-sm text-white/80">
+                  What do you need?
+                </label>
+                <select
+                  id="serviceType"
+                  name="serviceType"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-cyan-300/40"
+                  defaultValue="Business website"
+                >
+                  <option value="Business website">Business website</option>
+                  <option value="QR digital menu">QR digital menu</option>
+                  <option value="Admin dashboard">Admin dashboard</option>
+                  <option value="Android / iOS app">Android / iOS app</option>
+                  <option value="Desktop tool">Desktop tool</option>
+                  <option value="Custom integration">Custom integration</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm text-white/80">Project details</label>
+                <label htmlFor="message" className="mb-2 block text-sm text-white/80">
+                  Project details
+                </label>
                 <textarea
+                  id="message"
+                  name="message"
                   rows={5}
+                  required
                   placeholder="Tell us about your business, what you need, and your goal..."
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-cyan-300/40"
                 />
               </div>
 
+              {/* Optional: email subject */}
+              <input type="hidden" name="_subject" value="New Flux inquiry" />
+
+              {/* Optional: redirect after submit */}
+              <input type="hidden" name="_redirect" value="/thank-you" />
+
               <button
-                type="button"
+                type="submit"
                 className="w-full rounded-xl bg-cyan-400 px-5 py-3 font-medium text-black transition hover:scale-[1.01]"
               >
                 Send inquiry
               </button>
 
               <p className="text-xs text-white/45">
-                This form is UI-only for now. Next step: connect it to email or a backend endpoint.
+                By sending, you agree to be contacted about your request.
               </p>
             </form>
           </div>
@@ -490,7 +553,7 @@ export default function HomePage() {
                 Contact
               </p>
               <ul className="mt-4 space-y-2 text-sm text-white/65">
-                <li>hello@flux.mk</li>
+                <li>fluxit.mk@gmail.com</li>
                 <li>North Macedonia</li>
               </ul>
 
