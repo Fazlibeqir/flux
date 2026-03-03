@@ -9,6 +9,7 @@ const links = [
     { label: "Services", href: "/#services" },
     { label: "About", href: "/#about" },
     { label: "Work", href: "/#work" },
+    { label: "Founders", href: "/founders" },
     { label: "Contact", href: "/#contact" },
 ];
 
@@ -87,14 +88,7 @@ export default function Navbar() {
                             Get a Quote
                         </ButtonLink>
 
-                        {/* Mobile CTA (optional: keep it) */}
-                        <ButtonLink
-                            href="/#contact"
-                            onClick={() => setOpen(false)}
-                            className="inline-flex rounded-xl bg-cyan-400 px-3 py-2 text-sm font-medium text-black transition hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-cyan-300/50 md:hidden"
-                        >
-                            Quote
-                        </ButtonLink>
+                      
 
                         {/* Burger */}
                         <button

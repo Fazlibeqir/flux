@@ -1,15 +1,31 @@
 "use client";
 
 export default function StructuredData() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://flux.mk").replace(/\/$/, "");
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Flux",
     url: baseUrl,
-    logo: `${baseUrl}/icon.png`,
+    logo: `${baseUrl}/favicon.ico`,
     email: "fluxit.mk@gmail.com",
+    founder: [
+        {
+          "@type": "Person",
+          name: "Beqir Fazli",
+          jobTitle: "Co-Founder",
+          url: `${baseUrl}/founders#beqir-fazli`,
+          worksFor: { "@type": "Organization", name: "Flux", url: baseUrl },
+        },
+        {
+          "@type": "Person",
+          name: "Valon Sopa",
+          jobTitle: "Co-Founder",
+          url: `${baseUrl}/founders#valon-sopa`,
+          worksFor: { "@type": "Organization", name: "Flux", url: baseUrl },
+        },
+      ],
     sameAs: [
       // add real links if you have them (Instagram, LinkedIn, GitHub, etc.)
       "https://www.instagram.com/fluxit.mk",
@@ -24,36 +40,21 @@ export default function StructuredData() {
     },
     areaServed: ["North Macedonia", "Europe"],
     knowsAbout: [
-      "Next.js",
-      "React",
-      "Supabase",
-      "PostgreSQL",
-      "Web development",
-      "Mobile apps",
-      "Dashboards",
-      "QR digital menus",
-      "Custom software",
-      "Branding",
-      "UI/UX design",
-      "Digital marketing",
-      "SEO",
-      "Content creation",
-      "Copywriting",
-      "Social media management",
-      "Email marketing",
-      "Analytics",
-      "Conversion rate optimization",
-      "A/B testing",
-      "User research",
-      "Market analysis",
-      "Competitor analysis",
-      "Project management",
-      "Business analysis",
-      "Stakeholder management",
-      "Risk management",
-      "Change management",
-
-    ],
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Supabase",
+        "PostgreSQL",
+        "Web development",
+        "Web applications",
+        "Mobile applications",
+        "Admin dashboards",
+        "QR digital menus",
+        "API integration",
+        "UI/UX design",
+        "SEO",
+        "Performance optimization",
+      ],
   };
 
   return (
