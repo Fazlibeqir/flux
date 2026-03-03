@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import HeroCanvas from "./HeroCanvas";
-import Image from "next/image";
+import Link from "next/link";
+import { ButtonLink } from "@/components/ui/Button";
 
 export default function Hero() {
     const [scrollY, setScrollY] = useState(0);
@@ -67,12 +68,12 @@ export default function Hero() {
                         </p>
 
                         <div className="mt-8 flex flex-wrap gap-3">
-                            <button className="rounded-xl bg-cyan-400 px-5 py-3 font-medium text-black transition hover:scale-[1.02]">
+                            <ButtonLink href="/#contact" variant="primary" size="md">
                                 Get a Quote
-                            </button>
-                            <button className="rounded-xl border border-white/20 bg-white/5 px-5 py-3 font-medium text-white backdrop-blur hover:bg-white/10">
+                            </ButtonLink>
+                            <ButtonLink href="/#work" variant="secondary" size="md">
                                 See Our Work
-                            </button>
+                            </ButtonLink>
                         </div>
                     </div>
                 </div>
