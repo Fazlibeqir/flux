@@ -10,8 +10,8 @@ export default function WorkSection(props: { projects: ProjectCardModel[]; logos
       <div className="pointer-events-none absolute inset-0 opacity-[0.9]">
         <LogosDriftBackground
           logos={logosForBackground}
-          density={0.75}
-          forceMotion={process.env.NODE_ENV === "development"}
+          density={0.9}
+          forceMotion={true}
           className="absolute inset-0"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/55" />

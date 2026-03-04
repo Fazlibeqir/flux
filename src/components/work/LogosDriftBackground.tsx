@@ -32,17 +32,9 @@ export default function LogosDriftBackground({
   const spritesRef = useRef<Sprite[]>([]);
   const reducedRef = useRef(false);
   const visibleRef = useRef(true);
+  const readyRef = useRef(false);
 
-  useEffect(() => {
-    const onVis = () => {
-      if (document.visibilityState === "hidden") {
-        visibleRef.current = false;
-      }
-    };
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
-
+ 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -50,23 +42,6 @@ export default function LogosDriftBackground({
     setReduced();
     mq.addEventListener?.("change", setReduced);
     return () => mq.removeEventListener?.("change", setReduced);
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        visibleRef.current = !!entry?.isIntersecting;
-      },
-      { root: null, threshold: 0.01 }
-    );
-
-    io.observe(canvas);
-
-    return () => io.disconnect();
   }, []);
 
   useEffect(() => {
@@ -83,6 +58,13 @@ export default function LogosDriftBackground({
     const stop = () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
+    };
+
+    const start = () => {
+      if (!readyRef.current) return;
+      if (!visibleRef.current) return;
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(tick);
     };
 
     const resize = () => {
@@ -110,6 +92,7 @@ export default function LogosDriftBackground({
       });
 
     const buildSprites = async () => {
+      readyRef.current = false;
       spritesRef.current = [];
 
       if (!logos || logos.length === 0) return;
@@ -146,6 +129,7 @@ export default function LogosDriftBackground({
       }
 
       spritesRef.current = sprites;
+      readyRef.current = true;
     };
 
     const draw = () => {
@@ -214,30 +198,39 @@ export default function LogosDriftBackground({
       rafRef.current = requestAnimationFrame(tick);
     };
 
-    const start = () => {
-      if (rafRef.current) return;
-      rafRef.current = requestAnimationFrame(tick);
+    const target = canvas.parentElement ?? canvas;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visibleRef.current = !!entry?.isIntersecting;
+        if (visibleRef.current) start();
+        else stop();
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(target);
+
+    // Pause on tab hidden
+    const onVis = () => {
+      if (document.visibilityState === "hidden") stop();
+      else start();
     };
+    document.addEventListener("visibilitychange", onVis);
 
     resize();
     window.addEventListener("resize", resize);
 
     buildSprites().then(() => {
       if (cancelled) return;
-      draw(); // draw once immediately
-      start();
+      draw(); // draw once
+      start(); // start immediately if visible
     });
 
-    // poll visibility in case IO triggers after
-    const visInterval = window.setInterval(() => {
-      if (cancelled) return;
-      if (visibleRef.current) start();
-    }, 600);
 
     return () => {
       cancelled = true;
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("resize", resize);
-      window.clearInterval(visInterval);
       stop();
     };
   }, [logos, density, forceMotion]);
