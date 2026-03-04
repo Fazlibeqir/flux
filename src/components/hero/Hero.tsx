@@ -11,7 +11,6 @@ const HeroCanvas = dynamic(() => import("./HeroCanvas"), {
 
 export default function Hero() {
     const [scrollY, setScrollY] = useState(0);
-    const [showCanvas, setShowCanvas] = useState(false);
 
     useEffect(() => {
         const onScroll = () => setScrollY(window.scrollY || 0);
@@ -20,10 +19,6 @@ export default function Hero() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    useEffect(() => {
-        const t = window.setTimeout(() => setShowCanvas(true), 700);
-        return () => window.clearTimeout(t);
-    }, []);
 
     // Fade/translate only during early scroll
     const progress = Math.max(0, Math.min(scrollY / 420, 1));
@@ -35,7 +30,7 @@ export default function Hero() {
         <section className="relative h-screen w-full overflow-hidden">
             {/* 3D Background */}
             <div className="absolute inset-0">
-                {showCanvas ? <HeroCanvas /> : null}
+               <HeroCanvas />
             </div>
 
             {/* Atmospheric overlays (no blur filters = no seam lines) */}
