@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
+import { usePathname, useRouter } from "next/navigation";
 
 const links = [
     { label: "Services", href: "/#services" },
@@ -16,6 +17,8 @@ const links = [
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [open, setOpen] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 8);
@@ -57,7 +60,28 @@ export default function Navbar() {
                     ].join(" ")}
                 >
                     {/* Logo */}
-                    <Link href="/#services" className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setOpen(false);
+
+                            // If we're not on the homepage, navigate there
+                            if (pathname !== "/") {
+                                router.push("/"); // real navigation
+                                return;
+                            }
+
+                            // If we're already on the homepage, clear hash + scroll to top
+                            if (typeof window !== "undefined") {
+                                if (window.location.hash) {
+                                    window.history.replaceState(null, "", "/");
+                                }
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                            }
+                        }}
+                        className="flex items-center gap-2"
+                        aria-label="Go to top"
+                    >
                         <Image
                             src="/Flux-logo-backgoundrmv.png"
                             alt="Driven by Flux"
@@ -66,7 +90,7 @@ export default function Navbar() {
                             priority
                             className="h-auto w-[190px] sm:w-[170px] opacity-95 -ml-10"
                         />
-                    </Link>
+                    </button>
 
                     {/* Desktop links */}
                     <nav className="hidden items-center gap-6 md:flex">
@@ -88,7 +112,7 @@ export default function Navbar() {
                             Get a Quote
                         </ButtonLink>
 
-                      
+
 
                         {/* Burger */}
                         <button
