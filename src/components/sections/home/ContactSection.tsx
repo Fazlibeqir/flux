@@ -1,4 +1,22 @@
+import { Suspense } from "react";
 import ContactForm from "@/components/contact/ContactForm";
+
+function ContactFormFallback() {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
+      <h3 className="text-xl font-semibold text-white">Project inquiry</h3>
+      <p className="mt-2 text-sm text-white/60">Loading form…</p>
+
+      <div className="mt-6 space-y-4">
+        <div className="h-12 w-full rounded-xl border border-white/10 bg-black/40" />
+        <div className="h-12 w-full rounded-xl border border-white/10 bg-black/40" />
+        <div className="h-12 w-full rounded-xl border border-white/10 bg-black/40" />
+        <div className="h-32 w-full rounded-xl border border-white/10 bg-black/40" />
+        <div className="h-12 w-full rounded-xl bg-cyan-400/30" />
+      </div>
+    </div>
+  );
+}
 
 export default function ContactSection() {
   return (
@@ -17,7 +35,7 @@ export default function ContactSection() {
           <div className="mt-8 space-y-4">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
               <p className="text-xs uppercase tracking-[0.16em] text-white/50">Email</p>
-              <p className="mt-1 text-white">hello@flux.mk</p>
+              <p className="mt-1 text-white">fluxit.mk@gmail.com</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
               <p className="text-xs uppercase tracking-[0.16em] text-white/50">Location</p>
@@ -32,7 +50,9 @@ export default function ContactSection() {
           </div>
         </div>
 
-        <ContactForm />
+        <Suspense fallback={<ContactFormFallback />}>
+          <ContactForm />
+        </Suspense>
       </div>
     </section>
   );
