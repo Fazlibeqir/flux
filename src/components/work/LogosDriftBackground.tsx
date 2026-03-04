@@ -34,6 +34,16 @@ export default function LogosDriftBackground({
   const visibleRef = useRef(true);
 
   useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === "hidden") {
+        visibleRef.current = false;
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const setReduced = () => (reducedRef.current = mq.matches);

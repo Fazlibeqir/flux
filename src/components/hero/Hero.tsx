@@ -1,18 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import HeroCanvas from "./HeroCanvas";
-import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
+import dynamic from "next/dynamic";
+
+const HeroCanvas = dynamic(() => import("./HeroCanvas"), {
+    ssr: false,
+    loading: () => null,
+});
 
 export default function Hero() {
     const [scrollY, setScrollY] = useState(0);
+    const [showCanvas, setShowCanvas] = useState(false);
 
     useEffect(() => {
         const onScroll = () => setScrollY(window.scrollY || 0);
         onScroll();
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
+    }, []);
+
+    useEffect(() => {
+        const t = window.setTimeout(() => setShowCanvas(true), 700);
+        return () => window.clearTimeout(t);
     }, []);
 
     // Fade/translate only during early scroll
@@ -25,7 +35,7 @@ export default function Hero() {
         <section className="relative h-screen w-full overflow-hidden">
             {/* 3D Background */}
             <div className="absolute inset-0">
-                <HeroCanvas />
+                {showCanvas ? <HeroCanvas /> : null}
             </div>
 
             {/* Atmospheric overlays (no blur filters = no seam lines) */}
