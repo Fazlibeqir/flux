@@ -7,7 +7,7 @@ const SITE_NAME = "Flux";
 const SITE_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://flux.mk"; // set this env var
 const SITE_URL = new URL(SITE_DOMAIN);
 
-const TITLE = "Flux — Websites & Apps for Business";
+const TITLE = "Flux Websites & Apps for Business";
 const DESCRIPTION =
   "Flux builds high-performance websites, mobile apps, dashboards, QR menus, and custom software for real business workflows.";
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   // Better title handling across pages
   title: {
     default: TITLE,
-    template: `%s — ${SITE_NAME}`,
+    template: `%s ${SITE_NAME}`,
   },
   description: DESCRIPTION,
 
@@ -183,7 +183,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description:
-      "Websites, mobile apps, dashboards, QR menus, and custom software — built for speed, clarity, and growth.",
+      "Websites, mobile apps, dashboards, QR menus, and custom software built for speed, clarity, and growth.",
     url: SITE_DOMAIN,
     siteName: SITE_NAME,
     images: [
@@ -191,7 +191,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "Flux — Websites & Apps for Business",
+        alt: "Flux Websites & Apps for Business",
       },
     ],
     locale: "en_US",

@@ -1,19 +1,18 @@
 import type { MetadataRoute } from "next";
 
+function base() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "https://flux.mk").replace(/\/+$/, "");
+}
+
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ;
+  const baseUrl = base();
 
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/admin",
-          "/admin/",
-          "/admin/login",
-          "/admin/projects",
-        ],
+        disallow: ["/admin", "/admin/"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

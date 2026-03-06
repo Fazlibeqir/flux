@@ -1,39 +1,17 @@
 import type { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
-    const now = new Date();
+function base() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "https://flux.mk").replace(/\/+$/, "");
+}
 
-    return [
-        {
-            url: `${baseUrl}/`,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 1,
-        },
-        {
-            url: `${baseUrl}/founders`,
-            lastModified: now,
-            changeFrequency: "yearly",
-            priority: 0.4,
-        },
-        {
-            url: `${baseUrl}/privacy-policy`,
-            lastModified: now,
-            changeFrequency: "yearly",
-            priority: 0.3,
-        },
-        {
-            url: `${baseUrl}/terms`,
-            lastModified: now,
-            changeFrequency: "yearly",
-            priority: 0.3,
-        },
-        {
-            url: `${baseUrl}/thank-you`,
-            lastModified: now,
-            changeFrequency: "yearly",
-            priority: 0.1,
-        },
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = base();
+  const now = new Date();
+
+  return [
+    { url: `${baseUrl}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    { url: `${baseUrl}/founders`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${baseUrl}/privacy-policy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${baseUrl}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     ];
 }
