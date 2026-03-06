@@ -7,8 +7,8 @@ export default function ServicesOverviewSection() {
       <div className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
         <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-300">What we build</p>
 
-        <h2 className="max-w-4xl text-3xl font-semibold leading-tight sm:text-4xl">
-          Websites, mobile apps, desktop software, and custom systems that fit real business workflows.
+        <h2 className="max-w-3xl text-[clamp(1.3rem,2.1vw,2.1rem)] font-semibold leading-[1.1] tracking-tight">
+          Websites, mobile apps, desktop software, and custom systems tailored to real business workflows.
         </h2>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">

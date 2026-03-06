@@ -30,7 +30,7 @@ export default function Hero() {
         <section className="relative h-screen w-full overflow-hidden">
             {/* 3D Background */}
             <div className="absolute inset-0">
-               <HeroCanvas />
+                <HeroCanvas />
             </div>
 
             {/* Atmospheric overlays (no blur filters = no seam lines) */}
@@ -68,8 +68,7 @@ export default function Hero() {
                         </h1>
 
                         <p className="mt-5 text-base text-white/75 sm:text-lg">
-                            From café QR menus to full web, mobile, and desktop software —
-                            engineered for speed, clarity, and growth.
+                            From digital menus to full-scale software products - crafted for performance, usability, and growth.
                         </p>
 
                         <div className="mt-8 flex flex-wrap gap-3">

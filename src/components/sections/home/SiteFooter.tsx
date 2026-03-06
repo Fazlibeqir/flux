@@ -132,7 +132,7 @@ export default function SiteFooter() {
               </a>
 
               <a
-                href="https://www.linkedin.com/company/fluxit"
+                href="https://www.linkedin.com/company/flux-mk"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Flux LinkedIn"
