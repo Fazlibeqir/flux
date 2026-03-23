@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
     }
 
     // go admin
-    window.location.href = "/admin/projects";
+    window.location.href = "/admin/products";
   };
 
   const signOut = async () => {
@@ -83,6 +83,12 @@ export default function AdminLoginPage() {
                 className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-medium text-black"
               >
                 Go to Projects
+              </a>
+              <a
+                href="/admin/products"
+                className="rounded-xl border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white/80 hover:text-white"
+              >
+                Go to Products
               </a>
               <button
                 onClick={signOut}

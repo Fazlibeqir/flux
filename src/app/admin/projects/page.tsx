@@ -70,22 +70,30 @@ export default function AdminProjectsPage() {
                   </p>
                 </div>
 
-                <button
-                  onClick={async () => {
-                    if (signingOut) return;
-                    setSigningOut(true);
-                    try {
-                      await signOutAndRedirect();
-                    } catch (e) {
-                      setToast(e instanceof Error ? e.message : "Sign out failed.");
-                      setSigningOut(false);
-                    }
-                  }}
-                  disabled={signingOut}
-                  className="rounded-xl border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white/80 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {signingOut ? "Signing out…" : "Sign out"}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href="/admin/products"
+                    className="rounded-xl border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white/80 hover:text-white"
+                  >
+                    Products
+                  </a>
+                  <button
+                    onClick={async () => {
+                      if (signingOut) return;
+                      setSigningOut(true);
+                      try {
+                        await signOutAndRedirect();
+                      } catch (e) {
+                        setToast(e instanceof Error ? e.message : "Sign out failed.");
+                        setSigningOut(false);
+                      }
+                    }}
+                    disabled={signingOut}
+                    className="rounded-xl border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white/80 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {signingOut ? "Signing out…" : "Sign out"}
+                  </button>
+                </div>
               </div>
             </section>
 

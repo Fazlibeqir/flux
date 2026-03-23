@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { usePathname, useRouter } from "next/navigation";
 
 const links = [
+    { label: "Products", href: "/products" },
     { label: "Services", href: "/#services" },
     { label: "About", href: "/#about" },
     { label: "Work", href: "/#work" },
