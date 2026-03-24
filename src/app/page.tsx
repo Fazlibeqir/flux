@@ -37,11 +37,11 @@ export default async function HomePage() {
       <Hero />
 
       <ServicesOverviewSection />
+      <WorkSection projects={projectsToRender} logosForBackground={logosForBackground} />
       <ServiceDetailsSection />
       <AboutSection />
       <ProcessSection />
       <WhyFluxSection />
-      <WorkSection projects={projectsToRender} logosForBackground={logosForBackground} />
       <ContactSection />
       <SiteFooter />
     </main>
