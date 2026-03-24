@@ -15,6 +15,8 @@ export default function WorkSection(props: { projects: ProjectCardModel[]; logos
           className="absolute inset-0"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/55" />
+        {/* Ease into the slate service-details section below */}
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-slate-950" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 py-24 lg:px-10">
@@ -50,7 +52,7 @@ export default function WorkSection(props: { projects: ProjectCardModel[]; logos
                     // Keep <img> to avoid Next remotePatterns config headaches for now.
                     <img
                       src={project.preview}
-                      alt=""
+                      alt={project.title}
                       className="h-full w-full object-cover opacity-95"
                       loading="lazy"
                     />

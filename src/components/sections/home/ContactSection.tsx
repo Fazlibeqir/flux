@@ -20,8 +20,19 @@ function ContactFormFallback() {
 
 export default function ContactSection() {
   return (
-    <section id="contact" className="bg-slate-950">
-      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-24 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
+    <section id="contact" className="scroll-mt-24 border-t border-white/[0.08] bg-black">
+      {/* Editorial break from Why Flux — lines + label only */}
+      <div className="mx-auto max-w-7xl px-6 pb-2 pt-14 lg:px-10">
+        <div className="flex items-center gap-4">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="shrink-0 text-[11px] uppercase tracking-[0.28em] text-white/45">
+            Start a project
+          </span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+      </div>
+
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 pb-24 pt-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
         <div>
           <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-300">Contact</p>
           <h2 className="text-3xl font-semibold leading-tight text-white sm:text-4xl">

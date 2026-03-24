@@ -31,9 +31,10 @@ export default function SiteFooter() {
     };
   }, []);
   return (
-    <footer className="border-t border-white/10 bg-black">
-      <div className="mx-auto max-w-7xl px-6 py-12 lg:px-10">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+    <footer className="bg-black px-4 pb-12 pt-6 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-10 lg:px-10">
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <p className="text-lg font-semibold text-white">Flux</p>
             <p className="mt-3 text-sm text-white/60">
@@ -181,11 +182,11 @@ export default function SiteFooter() {
               )}
             </ul>
           </div>
-        </div>
-        
+          </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-xs text-white/45">
-          © {new Date().getFullYear()} Flux. All rights reserved.
+          <div className="mt-10 border-t border-white/10 pt-6 text-xs text-white/45">
+            © {new Date().getFullYear()} Flux. All rights reserved.
+          </div>
         </div>
       </div>
     </footer>
