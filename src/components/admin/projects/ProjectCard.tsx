@@ -8,6 +8,15 @@ function clsx(...v: Array<string | false | undefined>) {
   return v.filter(Boolean).join(" ");
 }
 
+function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 export default function ProjectCard(props: {
   project: Project;
   uploading: boolean;
@@ -91,7 +100,7 @@ export default function ProjectCard(props: {
               />
             </label>
 
-            {p.url && (
+            {p.url && isSafeUrl(p.url) && (
               <a
                 href={p.url}
                 target="_blank"

@@ -1,15 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { ADMIN_EMAIL } from "@/lib/config";
 
-const ALLOWED_EMAIL = "fluxit.mk@gmail.com";
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 60_000; // 1 minute
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  const failedAttempts = useRef(0);
+  const lockedUntil = useRef<number>(0);
+  const [lockSeconds, setLockSeconds] = useState(0);
+
+  // Countdown timer while locked out
+  useEffect(() => {
+    if (lockSeconds <= 0) return;
+    const id = setInterval(() => {
+      const remaining = Math.ceil((lockedUntil.current - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockSeconds(0);
+        clearInterval(id);
+      } else {
+        setLockSeconds(remaining);
+      }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [lockSeconds]);
 
   useEffect(() => {
     (async () => {
@@ -27,6 +48,13 @@ export default function AdminLoginPage() {
 
   const signIn = async () => {
     if (submitting) return;
+
+    if (Date.now() < lockedUntil.current) {
+      const remaining = Math.ceil((lockedUntil.current - Date.now()) / 1000);
+      alert(`Too many failed attempts. Please wait ${remaining} second(s).`);
+      return;
+    }
+
     if (!password.trim()) {
       alert("Enter password.");
       return;
@@ -35,17 +63,26 @@ export default function AdminLoginPage() {
     setSubmitting(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: ALLOWED_EMAIL,
+      email: ADMIN_EMAIL,
       password,
     });
 
     setSubmitting(false);
 
     if (error) {
-      alert(error.message);
+      failedAttempts.current += 1;
+      if (failedAttempts.current >= MAX_ATTEMPTS) {
+        lockedUntil.current = Date.now() + LOCKOUT_MS;
+        failedAttempts.current = 0;
+        setLockSeconds(Math.ceil(LOCKOUT_MS / 1000));
+        alert(`Too many failed attempts. Login locked for ${LOCKOUT_MS / 1000} seconds.`);
+      } else {
+        alert(error.message);
+      }
       return;
     }
 
+    failedAttempts.current = 0;
     // go admin
     window.location.href = "/admin/projects";
   };
@@ -69,7 +106,7 @@ export default function AdminLoginPage() {
 
         <h1 className="text-3xl font-semibold">Sign in</h1>
         <p className="mt-3 text-white/70">
-          Admin access is restricted to <span className="text-white">{ALLOWED_EMAIL}</span>.
+          Admin access is restricted to <span className="text-white">{ADMIN_EMAIL}</span>.
         </p>
 
         {sessionEmail ? (
@@ -96,7 +133,7 @@ export default function AdminLoginPage() {
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <label className="mb-2 block text-sm text-white/80">Email</label>
             <input
-              value={ALLOWED_EMAIL}
+              value={ADMIN_EMAIL}
               disabled
               className="w-full cursor-not-allowed rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white/70 outline-none"
             />
@@ -115,10 +152,10 @@ export default function AdminLoginPage() {
 
             <button
               onClick={signIn}
-              disabled={submitting}
+              disabled={submitting || lockSeconds > 0}
               className="mt-4 w-full rounded-xl bg-cyan-400 px-4 py-3 text-sm font-medium text-black transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {submitting ? "Signing in…" : "Sign in"}
+              {submitting ? "Signing in…" : lockSeconds > 0 ? `Locked — wait ${lockSeconds}s` : "Sign in"}
             </button>
 
             <p className="mt-3 text-xs text-white/45">

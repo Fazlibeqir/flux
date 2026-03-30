@@ -43,6 +43,18 @@ export default function ProjectCreateForm(props: {
     if (!title) return alert("Title is required.");
     if (!category) return alert("Category is required.");
 
+    const rawUrl = (form.url ?? "").trim();
+    if (rawUrl) {
+      try {
+        const parsed = new URL(rawUrl);
+        if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+          return alert("URL must start with http:// or https://");
+        }
+      } catch {
+        return alert("Enter a valid URL (e.g. https://example.com).");
+      }
+    }
+
     setCreating(true);
     try {
       const payload: ProjectCreateInput = {
@@ -51,7 +63,7 @@ export default function ProjectCreateForm(props: {
         problem: (form.problem ?? "").trim() || null,
         built: (form.built ?? "").trim() || null,
         result: (form.result ?? "").trim() || null,
-        url: (form.url ?? "").trim() || null,
+        url: rawUrl || null,
         is_featured: form.is_featured,
         sort_order: Number.isFinite(form.sort_order) ? form.sort_order : 100,
       };
@@ -109,6 +121,7 @@ export default function ProjectCreateForm(props: {
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             placeholder="e.g. Restaurant QR Menu"
+            maxLength={120}
           />
         </Field>
 
@@ -118,6 +131,7 @@ export default function ProjectCreateForm(props: {
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
             placeholder="Web / Mobile / Internal"
+            maxLength={60}
           />
         </Field>
 
@@ -128,6 +142,7 @@ export default function ProjectCreateForm(props: {
             value={form.problem ?? ""}
             onChange={(e) => setForm({ ...form, problem: e.target.value })}
             placeholder="What was broken or missing?"
+            maxLength={500}
           />
         </Field>
 
@@ -138,6 +153,7 @@ export default function ProjectCreateForm(props: {
             value={form.built ?? ""}
             onChange={(e) => setForm({ ...form, built: e.target.value })}
             placeholder="What did you build/implement?"
+            maxLength={500}
           />
         </Field>
 
@@ -148,6 +164,7 @@ export default function ProjectCreateForm(props: {
             value={form.result ?? ""}
             onChange={(e) => setForm({ ...form, result: e.target.value })}
             placeholder="What improved? (speed, bookings, clarity, etc.)"
+            maxLength={500}
           />
         </Field>
 
@@ -157,6 +174,8 @@ export default function ProjectCreateForm(props: {
             value={form.url ?? ""}
             onChange={(e) => setForm({ ...form, url: e.target.value })}
             placeholder="https://…"
+            maxLength={300}
+            type="url"
           />
         </Field>
 
