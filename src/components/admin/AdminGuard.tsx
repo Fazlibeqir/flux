@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getSessionEmail } from "@/lib/data/projects.client";
+import { ADMIN_EMAIL } from "@/lib/config";
 
 export default function AdminGuard(props: {
   children: (sessionEmail: string) => React.ReactNode;
@@ -14,7 +15,8 @@ export default function AdminGuard(props: {
   useEffect(() => {
     (async () => {
       const email = await getSessionEmail();
-      setSessionEmail(email);
+      // Only allow the designated admin email
+      setSessionEmail(email === ADMIN_EMAIL ? email : null);
       setLoading(false);
     })();
   }, []);
