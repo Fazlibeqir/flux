@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import type { ContactContent } from "@/lib/types/site";
 
 const OPTIONS = [
   "Business website",
@@ -23,8 +24,6 @@ function normalize(input: string) {
 function pickOption(serviceParam: string | null): Option | null {
   if (!serviceParam) return null;
   const q = normalize(serviceParam);
-
-  // Exact-ish mapping + synonyms
   const map: Array<[string[], Option]> = [
     [["business website", "website", "web", "web site", "landing page"], "Business website"],
     [["qr digital menu", "digital menu", "menu", "qr menu", "restaurant menu"], "QR digital menu"],
@@ -34,40 +33,60 @@ function pickOption(serviceParam: string | null): Option | null {
     [["custom integration", "integration", "api", "automation", "sync"], "Custom integration"],
     [["other"], "Other"],
   ];
-
   for (const [keys, value] of map) {
     if (keys.some((k) => q.includes(k))) return value;
   }
-
-  // If they passed an exact option
-  const exact = OPTIONS.find((o) => normalize(o) === q);
-  return exact ?? null;
+  return OPTIONS.find((o) => normalize(o) === q) ?? null;
 }
 
-export default function ContactForm() {
+export default function ContactForm({ contact }: { contact: ContactContent }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const serviceParam = searchParams.get("service");
-
   const preferred = useMemo(() => pickOption(serviceParam), [serviceParam]);
   const [service, setService] = useState<Option>("Business website");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (preferred) setService(preferred);
   }, [preferred]);
 
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    setError(null);
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
+    try {
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fd.get("name"),
+          email: fd.get("email"),
+          serviceType: fd.get("serviceType"),
+          message: fd.get("message"),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to send.");
+      router.push("/thank-you");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send.");
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
-      <h3 className="text-xl font-semibold text-white">Project inquiry</h3>
-      <p className="mt-2 text-sm text-white/60">Fill this out and we’ll get back to you.</p>
+      <h3 className="text-xl font-semibold text-white">{contact.formTitle}</h3>
+      <p className="mt-2 text-sm text-white/60">{contact.formSubtitle}</p>
 
-      <form
-        action="https://formspree.io/f/mjgelnbg"
-        method="POST"
-        className="mt-6 space-y-4"
-      >
-        {/* Honeypot (spam trap) */}
-        <input type="text" name="_gotcha" className="hidden" />
-
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div>
           <label htmlFor="name" className="mb-2 block text-sm text-white/80">
             Name
@@ -78,7 +97,7 @@ export default function ContactForm() {
             type="text"
             required
             placeholder="Your name"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-cyan-300/40"
+            className="input"
           />
         </div>
 
@@ -92,7 +111,7 @@ export default function ContactForm() {
             type="email"
             required
             placeholder="you@company.com"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-cyan-300/40"
+            className="input"
           />
         </div>
 
@@ -103,7 +122,7 @@ export default function ContactForm() {
           <select
             id="serviceType"
             name="serviceType"
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-cyan-300/40"
+            className="input-select"
             value={service}
             onChange={(e) => setService(e.target.value as Option)}
           >
@@ -113,12 +132,6 @@ export default function ContactForm() {
               </option>
             ))}
           </select>
-
-          {preferred && (
-            <p className="mt-2 text-xs text-white/45">
-              Preselected based on your click: <span className="text-white/70">{service}</span>
-            </p>
-          )}
         </div>
 
         <div>
@@ -130,16 +143,15 @@ export default function ContactForm() {
             name="message"
             rows={5}
             required
-            placeholder="Tell us about your business, what you need, and your goal..."
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-white/35 outline-none transition focus:border-cyan-300/40"
+            placeholder="What you need, who it's for, and any deadline…"
+            className="input min-h-[120px]"
           />
         </div>
 
-        <input type="hidden" name="_subject" value="New Flux inquiry" />
-        <input type="hidden" name="_redirect" value="/thank-you" />
+        {error && <p className="text-sm text-red-300">{error}</p>}
 
-        <Button type="submit" variant="primary" size="md" className="w-full">
-          Send inquiry
+        <Button type="submit" variant="primary" size="md" className="w-full" disabled={submitting}>
+          {submitting ? "Sending…" : "Send message"}
         </Button>
 
         <p className="text-xs text-white/45">
