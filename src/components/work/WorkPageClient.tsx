@@ -35,6 +35,7 @@ export default function WorkPageClient({ projects }: { projects: ProjectCardMode
               key={chip.id}
               type="button"
               onClick={() => setActiveFilter(chip.id)}
+              aria-pressed={active}
               className={[
                 "rounded-full border px-3.5 py-1.5 text-sm transition",
                 active

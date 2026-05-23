@@ -2,6 +2,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import type { Metadata, Viewport } from "next";
 import StructuredData from "@/components/seo/StructuredData";
+import { Analytics } from "@vercel/analytics/next";
 
 const SITE_NAME = "Flux";
 const SITE_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || "https://flux.mk"; // set this env var
@@ -237,6 +238,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StructuredData />
         <Navbar />
         {children}
+        <Analytics />
       </body>
     </html>
   );

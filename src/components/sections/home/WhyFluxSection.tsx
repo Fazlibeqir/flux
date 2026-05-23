@@ -8,9 +8,9 @@ export default function WhyFluxSection({ content }: { content: WhyFluxContent })
         <h2 className="max-w-3xl text-3xl font-semibold leading-tight sm:text-4xl">{content.title}</h2>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">
-          {content.points.map((point) => (
+          {content.points.map((point, index) => (
             <div
-              key={point}
+              key={`${point}-${index}`}
               className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5"
             >
               <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-300" />

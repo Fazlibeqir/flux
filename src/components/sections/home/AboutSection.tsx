@@ -100,8 +100,8 @@ export default function AboutSection({ content }: { content: AboutContent }) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {content.cards.map((item) => (
-            <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          {content.cards.map((item, idx) => (
+            <div key={`${item.title}-${idx}`} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
               <h3 className="text-[1rem] font-medium leading-snug text-white">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-white/65">{item.text}</p>
             </div>

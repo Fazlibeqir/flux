@@ -20,10 +20,22 @@ export function AdminPageHeader({
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  htmlFor,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  htmlFor?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <label className="mb-2 block text-sm text-white/80">{label}</label>
+      <label htmlFor={htmlFor} className="mb-2 block text-sm text-white/80">
+        {label}
+      </label>
       {children}
       {hint && <p className="mt-1.5 text-xs text-white/40">{hint}</p>}
     </div>

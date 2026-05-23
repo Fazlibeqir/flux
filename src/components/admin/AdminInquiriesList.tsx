@@ -78,8 +78,12 @@ export default function AdminInquiriesList({ setToast }: { setToast: (m: string)
                   <button
                     type="button"
                     onClick={async () => {
-                      await updateInquiryStatus(item.id, "read");
-                      await refresh();
+                      try {
+                        await updateInquiryStatus(item.id, "read");
+                        await refresh();
+                      } catch (e) {
+                        setToast(e instanceof Error ? e.message : "Failed to mark read.");
+                      }
                     }}
                     className="rounded border border-white/15 px-2 py-1 text-xs text-white/75 hover:text-white"
                   >
@@ -90,8 +94,12 @@ export default function AdminInquiriesList({ setToast }: { setToast: (m: string)
                   <button
                     type="button"
                     onClick={async () => {
-                      await updateInquiryStatus(item.id, "archived");
-                      await refresh();
+                      try {
+                        await updateInquiryStatus(item.id, "archived");
+                        await refresh();
+                      } catch (e) {
+                        setToast(e instanceof Error ? e.message : "Failed to archive.");
+                      }
                     }}
                     className="rounded border border-white/15 px-2 py-1 text-xs text-white/75 hover:text-white"
                   >
@@ -102,9 +110,13 @@ export default function AdminInquiriesList({ setToast }: { setToast: (m: string)
                   type="button"
                   onClick={async () => {
                     if (!confirm("Delete this message?")) return;
-                    await deleteInquiry(item.id);
-                    await refresh();
-                    setToast("Deleted.");
+                    try {
+                      await deleteInquiry(item.id);
+                      await refresh();
+                      setToast("Deleted.");
+                    } catch (e) {
+                      setToast(e instanceof Error ? e.message : "Failed to delete.");
+                    }
                   }}
                   className="rounded border border-red-500/30 px-2 py-1 text-xs text-red-200"
                 >

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { PROJECT_CATEGORIES, formatTags, parseTags, slugifyTitle } from "@/lib/constants/projects";
 import {
   createProject,
+  deleteProject,
   getNextSortOrder,
   updateProject,
 } from "@/lib/data/projects.client";
@@ -183,13 +184,16 @@ export default function AdminProjectForm({
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [slugTouched, setSlugTouched] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(() => !!project?.slug);
   const [form, setForm] = useState<FormState>(project ? projectToForm(project) : emptyForm());
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
 
   useEffect(() => {
-    if (project) setForm(projectToForm(project));
+    if (project) {
+      setForm(projectToForm(project));
+      setSlugTouched(!!project.slug);
+    }
   }, [project]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => {
@@ -233,6 +237,7 @@ export default function AdminProjectForm({
     }
 
     setSaving(true);
+    let createdProjectId: string | null = null;
     try {
       let projectId = project?.id;
 
@@ -242,6 +247,7 @@ export default function AdminProjectForm({
           sort_order: await getNextSortOrder(),
         });
         projectId = created.id;
+        createdProjectId = created.id;
         setToast("Project created.");
       } else if (projectId) {
         await updateProject(projectId, payload);
@@ -258,6 +264,13 @@ export default function AdminProjectForm({
         router.replace(`/admin/projects/${projectId}`);
       }
     } catch (e) {
+      if (createdProjectId) {
+        try {
+          await deleteProject(createdProjectId);
+        } catch (rollbackError) {
+          console.error("project rollback failed:", rollbackError);
+        }
+      }
       setToast(e instanceof Error ? e.message : "Save failed.");
     } finally {
       setSaving(false);

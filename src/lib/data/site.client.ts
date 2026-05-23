@@ -27,7 +27,10 @@ export async function listAllServices(): Promise<ServiceRecord[]> {
 }
 
 export async function seedDefaultServices(): Promise<void> {
-  const { count } = await supabase.from("services").select("*", { count: "exact", head: true });
+  const { count, error: countError } = await supabase
+    .from("services")
+    .select("*", { count: "exact", head: true });
+  if (countError) throw new Error(countError.message);
   if (count && count > 0) return;
   const { error } = await supabase.from("services").insert(
     DEFAULT_SERVICES.map((s) => ({ ...s, is_active: true }))
@@ -38,7 +41,8 @@ export async function seedDefaultServices(): Promise<void> {
 export async function seedDefaultSiteContent(): Promise<void> {
   const keys = Object.keys(DEFAULT_SITE_CONTENT) as SiteContentKey[];
   for (const key of keys) {
-    const { data } = await supabase.from("site_content").select("key").eq("key", key).maybeSingle();
+    const { data, error } = await supabase.from("site_content").select("key").eq("key", key).maybeSingle();
+    if (error) throw new Error(error.message);
     if (data) continue;
     await saveSiteContentBlock(key, DEFAULT_SITE_CONTENT[key]);
   }

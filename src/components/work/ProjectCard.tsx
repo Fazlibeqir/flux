@@ -79,7 +79,7 @@ export default function ProjectCard({ project, variant = "featured" }: ProjectCa
 
   if (project.url) {
     return (
-      <a href={project.url} target="_blank" rel="noreferrer" className="block h-full">
+      <a href={project.url} target="_blank" rel="noreferrer noopener" className="block h-full">
         {inner}
       </a>
     );

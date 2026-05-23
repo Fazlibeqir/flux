@@ -8,8 +8,8 @@ export default function ProcessSection({ content }: { content: ProcessContent })
         <h2 className="max-w-3xl text-3xl font-semibold leading-tight sm:text-4xl">{content.title}</h2>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {content.steps.map((item) => (
-            <div key={item.step} className="relative rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          {content.steps.map((item, idx) => (
+            <div key={`${item.step}-${idx}`} className="relative rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <div className="mb-4 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1 text-xs font-medium tracking-[0.18em] text-cyan-300">
                 {item.step}
               </div>

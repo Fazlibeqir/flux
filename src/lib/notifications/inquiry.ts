@@ -11,6 +11,12 @@ export type InquiryNotification = {
 
 type NotifyResult = { email: boolean; webhook: boolean };
 
+const FETCH_TIMEOUT_MS = 15_000;
+
+function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+  return fetch(url, { ...init, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+}
+
 function adminMessagesUrl(): string {
   const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000";
   return `${base}/admin/messages`;
@@ -65,9 +71,14 @@ async function resolveNotifyEmail(): Promise<string | null> {
 
   try {
     const supabase = supabaseServer();
-    const { data } = await supabase.from("site_content").select("payload").eq("key", "settings").maybeSingle();
-    const payload = data?.payload as { contactEmail?: string } | null;
-    const fromCms = payload?.contactEmail?.trim();
+    const { data, error } = await supabase
+      .from("site_content")
+      .select("content")
+      .eq("key", "settings")
+      .maybeSingle();
+    if (error) throw error;
+    const settings = data?.content as { contactEmail?: string } | null;
+    const fromCms = settings?.contactEmail?.trim();
     if (fromCms) return fromCms;
   } catch {
     /* use env only */
@@ -89,7 +100,7 @@ async function sendViaResend(inquiry: InquiryNotification, to: string): Promise<
   if (!apiKey) return;
 
   const { subject, html, text } = buildEmailContent(inquiry, to);
-  const res = await fetch("https://api.resend.com/emails", {
+  const res = await fetchWithTimeout("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -122,6 +133,9 @@ async function sendViaSmtp(inquiry: InquiryNotification, to: string): Promise<vo
     host,
     port,
     secure,
+    connectionTimeout: FETCH_TIMEOUT_MS,
+    greetingTimeout: FETCH_TIMEOUT_MS,
+    socketTimeout: FETCH_TIMEOUT_MS,
     auth: process.env.SMTP_USER
       ? {
           user: process.env.SMTP_USER,
@@ -153,9 +167,17 @@ function detectWebhookProvider(url: string): WebhookProvider {
   return "generic";
 }
 
+function escapeDiscord(text: string): string {
+  return text.replace(/[@<>]/g, (char) => `\\${char}`);
+}
+
+function escapeSlackPlain(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function inquirySummaryLine(inquiry: InquiryNotification): string {
   const service = inquiry.serviceType ? ` — ${inquiry.serviceType}` : "";
-  return `New inquiry from **${inquiry.name}** (${inquiry.email})${service}`;
+  return `New inquiry from ${inquiry.name} (${inquiry.email})${service}`;
 }
 
 function truncate(text: string, max: number): string {
@@ -165,22 +187,24 @@ function truncate(text: string, max: number): string {
 
 function buildWebhookBody(provider: WebhookProvider, inquiry: InquiryNotification): unknown {
   const adminUrl = adminMessagesUrl();
-  const summary = inquirySummaryLine(inquiry);
-  const plainSummary = summary.replace(/\*\*/g, "");
-  const messageBlock = truncate(inquiry.message, 1000);
+  const plainSummary = inquirySummaryLine(inquiry);
+  const safeName = escapeDiscord(inquiry.name);
+  const safeEmail = escapeDiscord(inquiry.email);
+  const safeService = inquiry.serviceType ? escapeDiscord(inquiry.serviceType) : null;
+  const safeMessage = escapeDiscord(inquiry.message);
 
   if (provider === "discord") {
     const fields = [
-      { name: "Name", value: truncate(inquiry.name, 256), inline: true },
-      { name: "Email", value: truncate(inquiry.email, 256), inline: true },
+      { name: "Name", value: truncate(safeName, 256), inline: true },
+      { name: "Email", value: truncate(safeEmail, 256), inline: true },
     ];
-    if (inquiry.serviceType) {
-      fields.push({ name: "Service", value: truncate(inquiry.serviceType, 256), inline: false });
+    if (safeService) {
+      fields.push({ name: "Service", value: truncate(safeService, 256), inline: false });
     }
-    fields.push({ name: "Message", value: truncate(inquiry.message, 1024), inline: false });
+    fields.push({ name: "Message", value: truncate(safeMessage, 1024), inline: false });
 
     return {
-      content: plainSummary,
+      content: escapeDiscord(plainSummary),
       embeds: [
         {
           title: "Flux contact form",
@@ -201,21 +225,21 @@ function buildWebhookBody(provider: WebhookProvider, inquiry: InquiryNotificatio
       },
       {
         type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*${inquiry.name}* · <mailto:${inquiry.email}|${inquiry.email}>`,
-        },
+        fields: [
+          { type: "mrkdwn", text: `*Name*\n${escapeSlackPlain(inquiry.name)}` },
+          { type: "mrkdwn", text: `*Email*\n${escapeSlackPlain(inquiry.email)}` },
+        ],
       },
     ];
     if (inquiry.serviceType) {
       blocks.push({
         type: "section",
-        text: { type: "mrkdwn", text: `*Service:* ${inquiry.serviceType}` },
+        text: { type: "mrkdwn", text: `*Service:* ${escapeSlackPlain(inquiry.serviceType)}` },
       });
     }
     blocks.push({
       type: "section",
-      text: { type: "mrkdwn", text: `*Message*\n${messageBlock}` },
+      text: { type: "mrkdwn", text: `*Message*\n${escapeSlackPlain(truncate(inquiry.message, 1000))}` },
     });
     blocks.push({
       type: "actions",
@@ -249,7 +273,7 @@ async function sendWebhook(inquiry: InquiryNotification): Promise<void> {
   const provider = detectWebhookProvider(url);
   const body = buildWebhookBody(provider, inquiry);
 
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

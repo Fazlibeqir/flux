@@ -113,9 +113,13 @@ export default function AdminServicesManager({ setToast }: { setToast: (m: strin
                     type="button"
                     onClick={async () => {
                       if (!confirm("Delete this service?")) return;
-                      await deleteService(s.id);
-                      await refresh();
-                      setToast("Deleted.");
+                      try {
+                        await deleteService(s.id);
+                        await refresh();
+                        setToast("Deleted.");
+                      } catch (e) {
+                        setToast(e instanceof Error ? e.message : "Delete failed.");
+                      }
                     }}
                     className="text-sm text-red-300 hover:text-red-200"
                   >

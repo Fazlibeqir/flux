@@ -74,7 +74,7 @@ create policy "Admin full access site content"
 drop policy if exists "Public insert inquiries" on public.inquiries;
 create policy "Public insert inquiries"
   on public.inquiries for insert to anon, authenticated
-  with check (true);
+  with check (status = 'new');
 
 drop policy if exists "Admin full access inquiries" on public.inquiries;
 create policy "Admin full access inquiries"

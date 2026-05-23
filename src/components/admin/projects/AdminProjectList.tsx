@@ -60,6 +60,15 @@ export default function AdminProjectList({
     onReorder(next);
   };
 
+  const moveProject = (id: string, direction: "up" | "down") => {
+    const ids = projects.map((p) => p.id);
+    const idx = ids.indexOf(id);
+    if (idx < 0) return;
+    const targetIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= ids.length) return;
+    applyReorder(id, ids[targetIdx]!);
+  };
+
   if (filtered.length === 0) {
     return (
       <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center text-white/55">
@@ -127,7 +136,29 @@ export default function AdminProjectList({
                 >
                   {canReorder && (
                     <td className="px-2 py-3 align-middle">
-                      <DragHandle />
+                      <div className="flex items-center gap-1">
+                        <DragHandle />
+                        <div className="flex flex-col gap-0.5">
+                          <button
+                            type="button"
+                            disabled={reordering || index === 0}
+                            onClick={() => moveProject(p.id, "up")}
+                            aria-label={`Move ${p.title} up`}
+                            className="rounded border border-white/10 px-1 text-[10px] text-white/50 hover:text-white disabled:opacity-30"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            disabled={reordering || index === filtered.length - 1}
+                            onClick={() => moveProject(p.id, "down")}
+                            aria-label={`Move ${p.title} down`}
+                            className="rounded border border-white/10 px-1 text-[10px] text-white/50 hover:text-white disabled:opacity-30"
+                          >
+                            ↓
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   )}
                   <td className="px-4 py-3">
