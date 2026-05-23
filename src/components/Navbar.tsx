@@ -8,8 +8,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 const links = [
     { label: "Services", href: "/#services" },
+    { label: "Work", href: "/work" },
     { label: "About", href: "/#about" },
-    { label: "Work", href: "/#work" },
     { label: "Founders", href: "/founders" },
     { label: "Contact", href: "/#contact" },
 ];
@@ -46,6 +46,10 @@ export default function Navbar() {
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [open]);
+
+    if (pathname.startsWith("/admin")) {
+        return null;
+    }
 
     return (
         <header className="fixed left-0 top-0 z-50 w-full">

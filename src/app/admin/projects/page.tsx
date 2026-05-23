@@ -1,26 +1,36 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
-import AdminGuard from "@/components/admin/AdminGuard";
-import Toast from "@/components/admin/Toast";
-import ProjectsToolbar from "@/components/admin/projects/ProjectsToolbar";
-import ProjectCreateForm from "@/components/admin/projects/ProjectCreateForm";
-import ProjectList from "@/components/admin/projects/ProjectList";
-
+import Link from "next/link";
+import { AdminPageWithToast } from "@/components/admin/AdminPageFrame";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import AdminProjectList from "@/components/admin/projects/AdminProjectList";
+import { PROJECT_FILTER_CHIPS, type ProjectFilterId } from "@/lib/constants/projects";
+import {
+  deleteProject,
+  listProjects,
+  reorderProjects,
+  toggleFeatured,
+} from "@/lib/data/projects.client";
 import type { Project, SortMode } from "@/lib/types/project";
-import { deleteProject, listProjects, signOutAndRedirect, toggleFeatured } from "@/lib/data/projects.client";
-import { uploadProjectLogo, uploadProjectPreview } from "@/lib/storage/projects.client";
 
 export default function AdminProjectsPage() {
-  const [toast, setToast] = useState<string | null>(null);
+  return (
+    <AdminPageWithToast>
+      {({ setToast }) => <AdminProjectsContent setToast={setToast} />}
+    </AdminPageWithToast>
+  );
+}
 
+function AdminProjectsContent({ setToast }: { setToast: (m: string) => void }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [query, setQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("sort_order");
+  const [categoryFilter, setCategoryFilter] = useState<ProjectFilterId>("all");
+  const [reordering, setReordering] = useState(false);
 
-  const [uploadingId, setUploadingId] = useState<string | null>(null);
-  const [signingOut, setSigningOut] = useState(false);
+  const canReorder =
+    sortMode === "sort_order" && categoryFilter === "all" && !query.trim();
 
   const refresh = async () => {
     try {
@@ -31,12 +41,26 @@ export default function AdminProjectsPage() {
     }
   };
 
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortMode]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return projects;
-
     return projects.filter((p) => {
-      const hay = [p.title, p.category, p.problem ?? "", p.built ?? "", p.result ?? "", p.url ?? ""]
+      const hay = [
+        p.title,
+        p.category,
+        p.slug ?? "",
+        p.short_description ?? "",
+        p.problem ?? "",
+        p.built ?? "",
+        p.result ?? "",
+        p.tags ?? "",
+        p.url ?? "",
+      ]
         .join(" ")
         .toLowerCase();
       return hay.includes(q);
@@ -44,142 +68,107 @@ export default function AdminProjectsPage() {
   }, [projects, query]);
 
   return (
-    <AdminGuard>
-      {(sessionEmail) => (
-        <main className="min-h-screen bg-black text-white">
-          <div className="mx-auto max-w-6xl px-6 py-8">
-            <Toast message={toast} onClear={() => setToast(null)} />
+    <>
+      <AdminPageHeader
+        title="Projects"
+        description="Manage portfolio items on the homepage and /work."
+        action={
+          <Link
+            href="/admin/projects/new"
+            className="inline-flex items-center justify-center rounded-lg bg-cyan-400 px-4 py-2 text-sm font-medium text-black hover:bg-cyan-300"
+          >
+            Add project
+          </Link>
+        }
+      />
 
-            {/* Controls */}
-            <div className="mx-auto max-w-4xl p-6">
-              <ProjectsToolbar
-                query={query}
-                setQuery={setQuery}
-                sortMode={sortMode}
-                setSortMode={setSortMode}
-              />
-            </div>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          className="input max-w-md"
+          placeholder="Search projects…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <select
+          className="input-select w-full max-w-[200px]"
+          value={sortMode}
+          onChange={(e) => setSortMode(e.target.value as SortMode)}
+        >
+          <option value="sort_order">Sort order</option>
+          <option value="newest">Newest first</option>
+        </select>
+      </div>
 
-            {/* Session / actions */}
-            <section className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-white/50">Admin session</p>
-                  <p className="mt-1 text-sm text-white/75">
-                    Signed in as <span className="text-white">{sessionEmail}</span>
-                  </p>
-                </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {PROJECT_FILTER_CHIPS.map((chip) => (
+          <button
+            key={chip.id}
+            type="button"
+            onClick={() => setCategoryFilter(chip.id)}
+            className={[
+              "rounded-full border px-3 py-1 text-xs transition",
+              categoryFilter === chip.id
+                ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100"
+                : "border-white/10 text-white/60 hover:text-white",
+            ].join(" ")}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
 
-                <button
-                  onClick={async () => {
-                    if (signingOut) return;
-                    setSigningOut(true);
-                    try {
-                      await signOutAndRedirect();
-                    } catch (e) {
-                      setToast(e instanceof Error ? e.message : "Sign out failed.");
-                      setSigningOut(false);
-                    }
-                  }}
-                  disabled={signingOut}
-                  className="rounded-xl border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white/80 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {signingOut ? "Signing out…" : "Sign out"}
-                </button>
-              </div>
-            </section>
-
-            {/* Data load */}
-            <AdminProjectsDataBootstrap sortMode={sortMode} refresh={refresh} setToast={setToast} />
-
-            {/* Create */}
-            <ProjectCreateForm
-              onCreated={refresh}
-              setToast={(m) => setToast(m)}
-            />
-
-            {/* List */}
-            <section className="mt-8">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold">Projects</h2>
-                  <p className="text-sm text-white/55">
-                    Showing <span className="text-white/80">{filtered.length}</span> projects
-                  </p>
-                </div>
-              </div>
-
-              <ProjectList
-                projects={filtered}
-                uploadingId={uploadingId}
-                onToggleFeatured={async (p) => {
-                  try {
-                    await toggleFeatured(p.id, !p.is_featured);
-                    setToast(p.is_featured ? "Removed from featured." : "Marked as featured.");
-                    await refresh();
-                  } catch (e) {
-                    setToast(e instanceof Error ? e.message : "Failed to update.");
-                  }
-                }}
-                onUploadLogo={async (id, file) => {
-                  setUploadingId(id);
-                  try {
-                    await uploadProjectLogo(id, file);
-                    setToast("Logo uploaded.");
-                    await refresh();
-                  } catch (e) {
-                    setToast(e instanceof Error ? e.message : "Upload failed.");
-                  } finally {
-                    setUploadingId(null);
-                  }
-                }}
-                onUploadPreview={async (id, file) => {
-                  setUploadingId(id);
-                  try {
-                    await uploadProjectPreview(id, file);
-                    setToast("Preview uploaded.");
-                    await refresh();
-                  } catch (e) {
-                    setToast(e instanceof Error ? e.message : "Upload failed.");
-                  } finally {
-                    setUploadingId(null);
-                  }
-                }}
-                onDelete={async (id) => {
-                  const ok = confirm("Delete this project? This cannot be undone.");
-                  if (!ok) return;
-
-                  try {
-                    await deleteProject(id);
-                    setToast("Project deleted.");
-                    await refresh();
-                  } catch (e) {
-                    setToast(e instanceof Error ? e.message : "Delete failed.");
-                  }
-                }}
-              />
-            </section>
-          </div>
-        </main>
+      {!canReorder && projects.length > 1 && (
+        <p className="mt-3 text-xs text-white/45">
+          To reorder by drag: select <span className="text-white/65">All</span>, clear search, and use{" "}
+          <span className="text-white/65">Sort order</span> view.
+        </p>
       )}
-    </AdminGuard>
+
+      <AdminProjectList
+        projects={canReorder ? projects : filtered}
+        categoryFilter={categoryFilter}
+        canReorder={canReorder}
+        reordering={reordering}
+        onReorder={async (orderedIds) => {
+          const map = new Map(projects.map((p) => [p.id, p]));
+          const next = orderedIds
+            .map((id, i) => {
+              const p = map.get(id);
+              return p ? { ...p, sort_order: (i + 1) * 10 } : null;
+            })
+            .filter((p): p is Project => p !== null);
+          setProjects(next);
+          setReordering(true);
+          try {
+            await reorderProjects(orderedIds);
+            setToast("Order saved.");
+          } catch (e) {
+            setToast(e instanceof Error ? e.message : "Failed to save order.");
+            await refresh();
+          } finally {
+            setReordering(false);
+          }
+        }}
+        onToggleFeatured={async (p) => {
+          try {
+            await toggleFeatured(p.id, !p.is_featured);
+            setToast(p.is_featured ? "Removed from featured." : "Marked as featured.");
+            await refresh();
+          } catch (e) {
+            setToast(e instanceof Error ? e.message : "Update failed.");
+          }
+        }}
+        onDelete={async (id) => {
+          if (!confirm("Delete this project? This cannot be undone.")) return;
+          try {
+            await deleteProject(id);
+            setToast("Project deleted.");
+            await refresh();
+          } catch (e) {
+            setToast(e instanceof Error ? e.message : "Delete failed.");
+          }
+        }}
+      />
+    </>
   );
-}
-
-/**
- * Keeps the main file clean while still loading data on mount + on sort change.
- */
-function AdminProjectsDataBootstrap(props: {
-  sortMode: SortMode;
-  refresh: () => Promise<void>;
-  setToast: (m: string) => void;
-}) {
-  const { sortMode, refresh, setToast } = props;
-
-  useEffect(() => {
-    refresh().catch((e) => setToast(e instanceof Error ? e.message : "Failed to load projects."));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortMode]);
-
-  return null;
 }

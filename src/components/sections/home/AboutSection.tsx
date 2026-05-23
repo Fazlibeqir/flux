@@ -1,3 +1,5 @@
+import type { AboutContent } from "@/lib/types/site";
+
 function detectSocial(url: string): "linkedin" | "github" | "instagram" | "website" {
   const u = url.toLowerCase();
   if (u.includes("linkedin.com")) return "linkedin";
@@ -62,25 +64,19 @@ function Icon({ type }: { type: "linkedin" | "github" | "instagram" | "website" 
 
 function SocialLinks({ links }: { links: string[] }) {
   if (!links?.length) return null;
-
   return (
     <div className="mt-6 flex flex-wrap gap-2">
       {links.map((url) => {
         const type = detectSocial(url);
-
         return (
           <a
             key={url}
             href={url}
             target="_blank"
             rel="noreferrer"
-            aria-label={socialLabel(type)}
-            title={socialLabel(type)}
             className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/80 transition hover:border-cyan-300/30 hover:text-white"
           >
-            <span className="text-white/80">
-              <Icon type={type} />
-            </span>
+            <Icon type={type} />
             <span>{socialLabel(type)}</span>
           </a>
         );
@@ -89,69 +85,25 @@ function SocialLinks({ links }: { links: string[] }) {
   );
 }
 
-export default function AboutSection() {
-  const fluxLinks = [
-    "https://www.linkedin.com/company/flux-mk",
-    "https://www.instagram.com/fluxit.mk/",
-  ];
-
-  const items = [
-    {
-      title: "Business-focused",
-      text: "Built around real business goals, not just visuals.",
-    },
-    {
-      title: "Custom solutions",
-      text: "Tailored systems instead of one-size-fits-all templates.",
-    },
-    {
-      title: "Performance-first",
-      text: "Fast experiences, clean UX, and maintainable code.",
-    },
-    {
-      title: "Long-term support",
-      text: "Ready for updates, improvements, and scaling.",
-    },
-  ];
-
+export default function AboutSection({ content }: { content: AboutContent }) {
   return (
     <section id="about" className="bg-slate-950">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
         <div className="max-w-2xl">
-          <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-300">
-            About Flux
-          </p>
-
+          <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-300">{content.eyebrow}</p>
           <h2 className="max-w-[18ch] text-[clamp(1.6rem,3vw,2.7rem)] font-semibold leading-[1.06] tracking-tight text-white">
-            We build digital products with a business-first mindset.
+            {content.title}
           </h2>
-
-          <p className="mt-5 text-[clamp(0.98rem,1.2vw,1.05rem)] leading-relaxed text-white/70">
-            Flux is a software studio focused on practical digital solutions
-            from business websites and QR menu systems to mobile apps, desktop
-            tools, and custom integrations.
-          </p>
-
-          <p className="mt-4 text-[clamp(0.98rem,1.2vw,1.05rem)] leading-relaxed text-white/70">
-            We build systems that help companies operate better, communicate
-            clearly, and grow with confidence.
-          </p>
-
-          <SocialLinks links={fluxLinks} />
+          <p className="mt-5 text-[clamp(0.98rem,1.2vw,1.05rem)] leading-relaxed text-white/70">{content.paragraph1}</p>
+          <p className="mt-4 text-[clamp(0.98rem,1.2vw,1.05rem)] leading-relaxed text-white/70">{content.paragraph2}</p>
+          <SocialLinks links={content.socialLinks} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {items.map((item) => (
-            <div
-              key={item.title}
-              className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-            >
-              <h3 className="text-[1rem] font-medium leading-snug text-white">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/65">
-                {item.text}
-              </p>
+          {content.cards.map((item) => (
+            <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <h3 className="text-[1rem] font-medium leading-snug text-white">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/65">{item.text}</p>
             </div>
           ))}
         </div>

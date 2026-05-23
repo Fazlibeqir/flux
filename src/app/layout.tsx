@@ -9,7 +9,7 @@ const SITE_URL = new URL(SITE_DOMAIN);
 
 const TITLE = "Flux Websites & Apps for Business";
 const DESCRIPTION =
-  "Flux builds high-performance websites, mobile apps, dashboards, QR menus, and custom software for real business workflows.";
+  "Flux builds websites, digital menus, admin dashboards, mobile apps, desktop tools, and integrations for small and medium businesses.";
 
 export const metadata: Metadata = {
   metadataBase: SITE_URL,
@@ -183,7 +183,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description:
-      "Websites, mobile apps, dashboards, QR menus, and custom software built for speed, clarity, and growth.",
+      "Websites, QR menus, dashboards, mobile apps, and custom software for small and medium businesses.",
     url: SITE_DOMAIN,
     siteName: SITE_NAME,
     images: [
@@ -202,7 +202,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: TITLE,
-    description: "We build websites and apps that move businesses forward.",
+    description: "We build websites, apps, and internal tools for businesses.",
     images: ["/og.png"],
   },
 
